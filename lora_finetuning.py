@@ -379,7 +379,7 @@ def main():
             learning_rate=2e-4,
             fp16=torch.cuda.is_available(),
             logging_steps=10,
-            evaluation_strategy="epoch",
+            eval_strategy="epoch",
             save_strategy="epoch",
             save_total_limit=2,
             warmup_steps=50,
