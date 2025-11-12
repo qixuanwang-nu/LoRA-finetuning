@@ -16,7 +16,7 @@ Training configuration: 1,000 training samples, 100 validation samples, 100 test
 
 **Name**: Qixuan Wang
 
-**Hugging Face Model Repo**: https://huggingface.co/kevinwang676/Qwen-0.6B-LoRA
+**Hugging Face Fine-tuned Model Repo**: https://huggingface.co/kevinwang676/Qwen-0.6B-LoRA
 
 **Results of the Original Model**: [finetuned_model_results.json](./results/finetuned_model_results.json)
 
