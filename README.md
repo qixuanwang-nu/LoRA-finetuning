@@ -135,7 +135,7 @@ Improvement:               +20-30%
 
 **Note**: The unit test uses samples 0-15, which are **completely separate** from the full training samples (1000-1199 for validation/test).
 
-## 📊 Sample Outputs Comparison
+## 📊 Sample Output Comparison
 
 ### Important Note on Data Separation
 
@@ -145,156 +145,64 @@ Improvement:               +20-30%
 
 ✅ **Test samples were NEVER used during fine-tuning** - they are held-out for unbiased evaluation.
 
-### Example 1: Multi-step Arithmetic
+### Model Comparison: Free Throw Percentage Problem
 
-**Question**: "Janet's ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers' market daily for $2 per fresh duck egg. How much in dollars does she make every day at the farmers' market?"
+#### Question
 
-**Original Model Output**:
-```
-To solve this problem, let's break it down into steps:
+Anthony made $5$ of his first $12$ free throw attempts. If he makes $2/3$ of his next $24$ attempts, by how many percentage points will he increase his overall success rate percentage? Express your answer to the nearest whole number.
 
-1. Janet's ducks lay 16 eggs per day.
-2. She eats 3 eggs for breakfast.
-3. She uses 4 eggs to bake muffins.
-4. She sells the remaining eggs.
+**Ground Truth Answer:** `17`
 
-First, let's calculate how many eggs Janet has left after eating and baking:
-16 eggs - 3 eggs (breakfast) - 4 eggs (muffins) = 9 eggs
+---
 
-Janet sells these 9 eggs at $2 per egg:
-9 eggs × $2/egg = $18
+#### Original Model Performance
 
-However, the answer provided seems to suggest a different calculation...
-The answer is: 16
-```
-- **Extracted Answer**: 16
-- **Correct Answer**: 18
-- **Result**: ❌ Incorrect (calculation was right but final answer was wrong)
+**Prediction:** `0` ❌  
+**Correct:** `false`
 
-**Fine-tuned Model Output**:
-```
-Let's solve this step by step:
+##### Original Model's Reasoning (Incorrect)
 
-1. Total eggs laid per day: 16 eggs
-2. Eggs eaten for breakfast: 3 eggs
-3. Eggs used for muffins: 4 eggs
-4. Remaining eggs to sell: 16 - 3 - 4 = 9 eggs
-5. Price per egg: $2
-6. Daily earnings: 9 eggs × $2/egg = $18
+The original model made a critical error in step 3:
 
-The answer is: 18
-```
-- **Extracted Answer**: 18
-- **Correct Answer**: 18
-- **Result**: ✅ Correct
+1. Correctly identified initial success rate: 5/12 ≈ 41.67%
+2. Correctly calculated new successful attempts: 2/3 × 24 = 16
+3. **ERROR:** Calculated new success rate as 16/24 ≈ 66.67% (only considering the new attempts, not the overall rate)
+4. Calculated increase: 66.67% - 41.67% = 25%
+5. Final answer: ~25% (reported as "0" in prediction)
 
-### Example 2: Algebraic Word Problem
+**Key Issue:** The model failed to combine the initial and new attempts to calculate the overall success rate. It compared the initial rate (5/12) with only the new rate (16/24) instead of the combined overall rate (21/36).
 
-**Question**: "A store sells bags of apples. Each bag contains 6 apples. If the store sold 15 bags, how many apples did they sell in total?"
+---
 
-**Original Model Output**:
-```
-Let's think about this problem.
+#### Finetuned Model Performance
 
-If each bag has 6 apples, and they sold 15 bags, then we need to multiply.
-6 apples per bag times 15 bags.
+**Prediction:** `17` ✅  
+**Correct:** `true`
 
-But wait, I should also consider if there are any other factors...
-The total number of apples would be 6 × 15 = 90 apples.
+##### Finetuned Model's Reasoning (Correct)
 
-The answer is: 6
-```
-- **Extracted Answer**: 6
-- **Correct Answer**: 90
-- **Result**: ❌ Incorrect (extracted wrong number)
+The finetuned model correctly followed the complete calculation:
 
-**Fine-tuned Model Output**:
-```
-To find the total number of apples sold:
+1. Initial success rate: 5/12 ≈ 41.67%
+2. New successful attempts: 2/3 × 24 = 16
+3. **CORRECT:** Combined total successful attempts: 5 + 16 = 21
+4. **CORRECT:** Combined total attempts: 12 + 24 = 36
+5. **CORRECT:** Overall success rate: 21/36 ≈ 58.33%
+6. **CORRECT:** Percentage point increase: 58.33% - 41.67% = 16.66%
+7. Rounded to nearest whole number: **17**
 
-Step 1: Identify the given information
-- Apples per bag: 6
-- Number of bags sold: 15
+---
 
-Step 2: Calculate total apples
-Total apples = apples per bag × number of bags
-Total apples = 6 × 15
-Total apples = 90
+#### Key Improvement
 
-The answer is: 90
-```
-- **Extracted Answer**: 90
-- **Correct Answer**: 90
-- **Result**: ✅ Correct
+The finetuned model demonstrates improved reasoning by:
 
-### Example 3: Fraction and Division
+- **Correctly aggregating** all attempts (initial + new) before calculating the overall success rate
+- **Understanding the problem context** - recognizing that "overall success rate" means combining all attempts, not just comparing initial vs. new rates
+- **Following the complete calculation chain** without skipping steps
 
-**Question**: "A pizza is cut into 8 equal slices. If you eat 3 slices, what fraction of the pizza have you eaten?"
+This improvement shows that LoRA finetuning helped the model better understand multi-step word problems requiring cumulative calculations.
 
-**Original Model Output**:
-```
-You ate 3 slices out of 8 total slices.
-That means you ate 3/8 of the pizza.
-Wait, let me recalculate to be sure.
-3 divided by 8 equals 0.375 or 37.5%.
-The answer is: 0.375
-```
-- **Extracted Answer**: 0.375
-- **Correct Answer**: 3/8 (normalized to same format)
-- **Result**: ❌ Incorrect (different representation)
-
-**Fine-tuned Model Output**:
-```
-Step 1: Determine what fraction was eaten
-- Total slices: 8
-- Slices eaten: 3
-- Fraction eaten: 3/8
-
-Step 2: Simplify if needed
-3/8 is already in simplest form.
-
-The answer is: 3/8
-```
-- **Extracted Answer**: 3
-- **Correct Answer**: 3
-- **Result**: ✅ Correct (both extract numerator)
-
-### Example 4: Complex Multi-step Problem
-
-**Question**: "A school has 4 classes. The first class has 28 students, the second has 32 students, the third has 24 students, and the fourth has half the combined students of the first two classes. How many students are there in total?"
-
-**Original Model Output**:
-```
-Let me add up all the students.
-First class: 28
-Second class: 32  
-Third class: 24
-Fourth class: I need to calculate this. Half of (28 + 32) = half of 60 = 30
-
-Total: 28 + 32 + 24 + 30 = 114 students
-
-The answer is: 30
-```
-- **Extracted Answer**: 30
-- **Correct Answer**: 114
-- **Result**: ❌ Incorrect (extracted intermediate value, not final answer)
-
-**Fine-tuned Model Output**:
-```
-Step 1: Find students in each class
-- First class: 28 students
-- Second class: 32 students
-- Third class: 24 students
-- Fourth class: half of (28 + 32) = half of 60 = 30 students
-
-Step 2: Calculate total students
-Total = 28 + 32 + 24 + 30 = 114 students
-
-The answer is: 114
-```
-- **Extracted Answer**: 114
-- **Correct Answer**: 114
-- **Result**: ✅ Correct
 
 ## 💡 Key Observations: Base vs Fine-tuned Model
 
