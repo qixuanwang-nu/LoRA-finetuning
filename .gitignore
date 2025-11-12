@@ -19,3 +19,13 @@ ENV/
 *.swo
 *~
 
+# Model outputs and results
+lora_finetuned_model/
+unit_test_model/
+*_results.json
+unit_test_results.json
+
+# Test files
+test.py
+test_*.py
+
