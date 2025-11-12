@@ -120,8 +120,8 @@ NUM_EVAL_SAMPLES = 200  # Change this number
 
 **In `lora_finetuning.py`:**
 ```python
-NUM_TRAIN_SAMPLES = 500  # Training samples
-NUM_EVAL_SAMPLES = 50    # Evaluation samples
+NUM_TRAIN_SAMPLES = 1000  # Training samples
+NUM_EVAL_SAMPLES = 100    # Evaluation samples
 ```
 
 Or use `config.py` for centralized configuration.

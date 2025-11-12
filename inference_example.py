@@ -9,7 +9,7 @@ import re
 
 def extract_final_answer(text):
     """Extract the final answer from the text."""
-    # Helper to clean a matched numeric string and normalize pi tokens
+    # Helper to clean a matched numeric string
     def _clean_number(num_str: str) -> str:
         s = num_str.strip()
         if s.endswith('.'):
@@ -17,37 +17,11 @@ def extract_final_answer(text):
         s = s.replace(',', '')
         return s
 
-    def _normalize_pi_token(token: str) -> str:
-        t = token.strip()
-        if t.endswith('.'):
-            t = t[:-1]
-        t = t.replace(',', '')
-        t = re.sub(r'\s*\\pi', r'\\pi', t)
-        return t
-
+    # Regex to match numbers (including those with commas)
     number_regex = re.compile(r'[-+]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?\.?')
-    latex_frac_regex = re.compile(r'\\frac\s*\{\s*([^{}]+)\s*\}\s*\{\s*([^{}]+)\s*\}')
-    # Match slash fractions including those with parentheses, e.g., 81/(2\pi) or 3/2
-    slash_frac_regex = re.compile(
-        r'([+-]?(?:(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?(?:\s*\\pi)?|\\pi))\s*/\s*'
-        r'\(?\s*([+-]?(?:(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?(?:\s*\\pi)?|\\pi))\s*\)?'
-    )
-    pi_token_regex = re.compile(r'[+-]?(?:(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?\s*\\pi|\\pi)')
 
     def _first_math_token(s: str):
-        m = latex_frac_regex.search(s)
-        if m:
-            num = _normalize_pi_token(m.group(1))
-            den = _normalize_pi_token(m.group(2))
-            return f"\\frac{{{num}}}{{{den}}}"
-        m = slash_frac_regex.search(s)
-        if m:
-            num = _normalize_pi_token(m.group(1))
-            den = _normalize_pi_token(m.group(2))
-            return f"\\frac{{{num}}}{{{den}}}"
-        m = pi_token_regex.search(s)
-        if m:
-            return _normalize_pi_token(m.group(0))
+        # Simply extract the first number found
         m = number_regex.search(s)
         if m:
             return _clean_number(m.group(0))

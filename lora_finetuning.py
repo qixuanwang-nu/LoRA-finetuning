@@ -25,9 +25,9 @@ print(f"Using device: {device}")
 # Model and dataset configuration
 MODEL_NAME = "Qwen/Qwen3-0.6B-Base"  # Qwen3 0.6B base model for fine-tuning
 DATASET_NAME = "meta-math/MetaMathQA"
-NUM_TRAIN_SAMPLES = 500
-NUM_VAL_SAMPLES = 50
-NUM_EVAL_SAMPLES = 50
+NUM_TRAIN_SAMPLES = 1000
+NUM_VAL_SAMPLES = 100
+NUM_EVAL_SAMPLES = 100
 OUTPUT_DIR = "./lora_finetuned_model"
 ORIGINAL_EVAL_RESULTS = "./original_model_results.json"
 FINETUNED_EVAL_RESULTS = "./finetuned_model_results.json"
@@ -37,7 +37,7 @@ def extract_final_answer(text):
     Extract the final answer from the text.
     Looking for pattern: "The answer is: {final_answer}"
     """
-    # Helper to clean a matched numeric string and normalize pi tokens
+    # Helper to clean a matched numeric string
     def _clean_number(num_str: str) -> str:
         s = num_str.strip()
         if s.endswith('.'):
@@ -45,44 +45,11 @@ def extract_final_answer(text):
         s = s.replace(',', '')
         return s
 
-    def _normalize_pi_token(token: str) -> str:
-        t = token.strip()
-        if t.endswith('.'):
-            t = t[:-1]
-        # Remove commas inside numeric parts
-        t = t.replace(',', '')
-        # Collapse spaces before \pi (e.g., "2 \pi" -> "2\pi")
-        t = re.sub(r'\s*\\pi', r'\\pi', t)
-        return t
-
-    # Regexes
+    # Regex to match numbers (including those with commas)
     number_regex = re.compile(r'[-+]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?\.?')
-    latex_frac_regex = re.compile(r'\\frac\s*\{\s*([^{}]+)\s*\}\s*\{\s*([^{}]+)\s*\}')
-    # Match slash fractions including those with parentheses, e.g., 81/(2\pi) or 3/2
-    slash_frac_regex = re.compile(
-        r'([+-]?(?:(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?(?:\s*\\pi)?|\\pi))\s*/\s*'
-        r'\(?\s*([+-]?(?:(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?(?:\s*\\pi)?|\\pi))\s*\)?'
-    )
-    pi_token_regex = re.compile(r'[+-]?(?:(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?\s*\\pi|\\pi)')
 
     def _first_math_token(s: str):
-        # 1) LaTeX fraction
-        m = latex_frac_regex.search(s)
-        if m:
-            num = _normalize_pi_token(m.group(1))
-            den = _normalize_pi_token(m.group(2))
-            return f"\\frac{{{num}}}{{{den}}}"
-        # 2) Slash fraction (including cases with \pi)
-        m = slash_frac_regex.search(s)
-        if m:
-            num = _normalize_pi_token(m.group(1))
-            den = _normalize_pi_token(m.group(2))
-            return f"\\frac{{{num}}}{{{den}}}"
-        # 3) Pi token (e.g., 2\pi or \pi)
-        m = pi_token_regex.search(s)
-        if m:
-            return _normalize_pi_token(m.group(0))
-        # 4) Number
+        # Simply extract the first number found
         m = number_regex.search(s)
         if m:
             return _clean_number(m.group(0))
@@ -402,25 +369,46 @@ def main():
     print("SETTING UP TRAINING")
     print("="*80)
 
-    training_args = TrainingArguments(
-        output_dir=OUTPUT_DIR,
-        num_train_epochs=3,
-        per_device_train_batch_size=4,
-        gradient_accumulation_steps=4,
-        learning_rate=2e-4,
-        fp16=torch.cuda.is_available(),
-        logging_steps=10,
-        evaluation_strategy="epoch",
-        save_strategy="epoch",
-        save_total_limit=2,
-        warmup_steps=50,
-        weight_decay=0.01,
-        report_to="none",
-        remove_unused_columns=False,
-        load_best_model_at_end=True,
-        metric_for_best_model="eval_loss",
-        greater_is_better=False,
-    )
+    # Create TrainingArguments with backward compatibility across transformers versions
+    try:
+        training_args = TrainingArguments(
+            output_dir=OUTPUT_DIR,
+            num_train_epochs=3,
+            per_device_train_batch_size=4,
+            gradient_accumulation_steps=4,
+            learning_rate=2e-4,
+            fp16=torch.cuda.is_available(),
+            logging_steps=10,
+            evaluation_strategy="epoch",
+            save_strategy="epoch",
+            save_total_limit=2,
+            warmup_steps=50,
+            weight_decay=0.01,
+            report_to="none",
+            remove_unused_columns=False,
+            load_best_model_at_end=True,
+            metric_for_best_model="eval_loss",
+            greater_is_better=False,
+        )
+    except TypeError:
+        # Fallback for older versions where some arguments are unsupported
+        try:
+            training_args = TrainingArguments(
+                output_dir=OUTPUT_DIR,
+                num_train_epochs=3,
+                per_device_train_batch_size=4,
+                gradient_accumulation_steps=4,
+                learning_rate=2e-4,
+                fp16=torch.cuda.is_available(),
+                logging_steps=10,
+                warmup_steps=50,
+                weight_decay=0.01,
+            )
+            print("Note: Using fallback TrainingArguments (older transformers version detected).")
+        except TypeError:
+            # Minimal fallback - guarantees instantiation
+            training_args = TrainingArguments(output_dir=OUTPUT_DIR)
+            print("Note: Using minimal TrainingArguments due to very old transformers version.")
 
     print("Training Arguments:")
     print(f"  Epochs: {training_args.num_train_epochs}")

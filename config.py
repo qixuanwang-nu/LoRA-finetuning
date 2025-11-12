@@ -12,8 +12,8 @@ DATASET_NAME = "meta-math/MetaMathQA"
 # =============================================================================
 # Dataset Configuration
 # =============================================================================
-NUM_TRAIN_SAMPLES = 500  # Number of samples for training
-NUM_EVAL_SAMPLES = 50    # Number of samples for evaluation
+NUM_TRAIN_SAMPLES = 1000  # Number of samples for training
+NUM_EVAL_SAMPLES = 100    # Number of samples for evaluation
 MAX_SEQUENCE_LENGTH = 1024 # Maximum sequence length for tokenization
 
 # =============================================================================
