@@ -35,8 +35,8 @@ def extract_final_answer(text):
         if not last_sentence.strip():
             lines = [ln for ln in text_stripped.splitlines() if ln.strip()]
             last_sentence = lines[-1] if lines else text_stripped
-        # First try "answer"
-        m_ans = re.search(r'answer\b(.*)$', last_sentence, re.IGNORECASE)
+        # First try "answer" (case-insensitive, optionally followed by a colon)
+        m_ans = re.search(r'\banswer\b[:\s]*(.*)$', last_sentence, re.IGNORECASE)
         if m_ans:
             after_answer = m_ans.group(1)
             token = _first_math_token(after_answer)
