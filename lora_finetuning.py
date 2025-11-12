@@ -222,7 +222,9 @@ def evaluate_model(model, tokenizer, eval_samples, model_name="model"):
         results.append({
             "query": query,
             "ground_truth": ground_truth_answer,
+            "ground_truth_output": ground_truth_response,
             "prediction": predicted_answer,
+            "model_output": prediction,
             "correct": is_correct
         })
 
