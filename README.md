@@ -22,6 +22,10 @@ Training configuration: 1,000 training samples, 100 validation samples, 100 test
 
 **Results of the Fine-tuned Model**: [finetuned_model_results.json](./results/finetuned_model_results.json)
 
+**LoRA Fine-tuning Script**: [lora_finetuning.py](./lora_finetuning.py)
+
+**Unit Test Script**: [unit_test.py](./unit_test.py)
+
 ## 🐳 Docker Setup
 
 ### Build Docker Image
