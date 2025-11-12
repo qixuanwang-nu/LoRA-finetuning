@@ -18,9 +18,9 @@ Training configuration: 1,000 training samples, 100 validation samples, 100 test
 
 **Hugging Face Fine-tuned Model Repo**: https://huggingface.co/kevinwang676/Qwen-0.6B-LoRA
 
-**Results of the Original Model**: [finetuned_model_results.json](./results/finetuned_model_results.json)
+**Results of the Original Model**: [original_model_results.json](./results/original_model_results.json)
 
-**Results of the Fine-tuned Model**: [original_model_results.json](./results/original_model_results.json)
+**Results of the Fine-tuned Model**: [finetuned_model_results.json](./results/finetuned_model_results.json)
 
 ## 🚀 Quick Start
 
