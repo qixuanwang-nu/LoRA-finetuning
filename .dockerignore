@@ -1,0 +1,27 @@
+# Exclude from Docker build
+.claude/
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.git/
+.gitignore
+*.log
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Exclude output files
+lora_finetuned_model/
+unit_test_model/
+*.json
+!requirements.txt
+
+# Exclude test files
+test.py
+test_*.py
+
