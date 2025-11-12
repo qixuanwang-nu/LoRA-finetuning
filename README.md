@@ -26,6 +26,10 @@ Training configuration: 1,000 training samples, 100 validation samples, 100 test
 
 **Unit Test Script**: [unit_test.py](./unit_test.py)
 
+**Qwen3-0.6B Model**: https://huggingface.co/Qwen/Qwen3-0.6B
+
+**MetaMathQA Dataset**: https://huggingface.co/datasets/meta-math/MetaMathQA
+
 ## 🐳 Docker Setup
 
 ### Build Docker Image
@@ -406,5 +410,5 @@ LoRA-finetuning/
 - **Repository**: https://github.com/qixuanwang-nu/LoRA-finetuning
 - **LoRA Paper**: https://arxiv.org/abs/2106.09685
 - **PEFT Docs**: https://huggingface.co/docs/peft
-- **Qwen Models**: https://huggingface.co/Qwen
+- **Qwen Models**: https://huggingface.co/Qwen/Qwen3-0.6B
 - **MetaMathQA**: https://huggingface.co/datasets/meta-math/MetaMathQA
