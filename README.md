@@ -22,6 +22,60 @@ Training configuration: 1,000 training samples, 100 validation samples, 100 test
 
 **Results of the Fine-tuned Model**: [finetuned_model_results.json](./results/finetuned_model_results.json)
 
+## 🐳 Docker Setup
+
+### Build Docker Image
+
+```bash
+# Build locally
+docker build -t lora-finetuning:latest .
+
+# Or use helper script
+./build_docker.sh
+```
+
+**Image Details**:
+- **Base**: `nvidia/cuda:12.1.0-cudnn8-runtime-ubuntu22.04`
+- **Size**: ~8GB (includes CUDA runtime and dependencies)
+- **GPU Support**: NVIDIA CUDA 12.1+
+
+### Run with Docker
+
+**Unit Test**:
+```bash
+docker run --rm lora-finetuning:latest
+```
+
+**Full Training (GPU)**:
+```bash
+docker run --gpus all --rm \
+  -v $(pwd)/output:/workspace \
+  lora-finetuning:latest \
+  python3 lora_finetuning.py
+```
+
+**Full Training (CPU)**:
+```bash
+docker run --rm \
+  -v $(pwd)/output:/workspace \
+  lora-finetuning:latest \
+  python3 lora_finetuning.py
+```
+
+### Push to Docker Hub (Optional)
+
+```bash
+# Tag with your username
+docker tag lora-finetuning:latest YOUR_USERNAME/lora-finetuning:latest
+
+# Push to Docker Hub
+docker push YOUR_USERNAME/lora-finetuning:latest
+
+# Others can then pull and run
+docker pull YOUR_USERNAME/lora-finetuning:latest
+docker run --rm YOUR_USERNAME/lora-finetuning:latest
+```
+
 ## 🚀 Quick Start
 
 ### Step 1: Install Dependencies
@@ -76,60 +130,6 @@ Improvement:               +20-30%
 ```
 
 **Note**: The unit test uses samples 0-15, which are **completely separate** from the full training samples (1000-1199 for validation/test).
-
-## 🐳 Docker Setup
-
-### Build Docker Image
-
-```bash
-# Build locally
-docker build -t lora-finetuning:latest .
-
-# Or use helper script
-./build_docker.sh
-```
-
-**Image Details**:
-- **Base**: `nvidia/cuda:12.1.0-cudnn8-runtime-ubuntu22.04`
-- **Size**: ~8GB (includes CUDA runtime and dependencies)
-- **GPU Support**: NVIDIA CUDA 12.1+
-
-### Run with Docker
-
-**Unit Test**:
-```bash
-docker run --rm lora-finetuning:latest
-```
-
-**Full Training (GPU)**:
-```bash
-docker run --gpus all --rm \
-  -v $(pwd)/output:/workspace \
-  lora-finetuning:latest \
-  python3 lora_finetuning.py
-```
-
-**Full Training (CPU)**:
-```bash
-docker run --rm \
-  -v $(pwd)/output:/workspace \
-  lora-finetuning:latest \
-  python3 lora_finetuning.py
-```
-
-### Push to Docker Hub (Optional)
-
-```bash
-# Tag with your username
-docker tag lora-finetuning:latest YOUR_USERNAME/lora-finetuning:latest
-
-# Push to Docker Hub
-docker push YOUR_USERNAME/lora-finetuning:latest
-
-# Others can then pull and run
-docker pull YOUR_USERNAME/lora-finetuning:latest
-docker run --rm YOUR_USERNAME/lora-finetuning:latest
-```
 
 ## 📊 Sample Outputs Comparison
 
